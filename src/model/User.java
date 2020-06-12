@@ -21,9 +21,9 @@ public class User implements Serializable {
   public String toString() {
     final StringBuilder sb = new StringBuilder();
     sb.append("id=").append(id);
-    sb.append(", Login=").append(login);
-    sb.append(", Password=").append(password);
-    sb.append(", UserType=").append(userType);
+    sb.append("; Login=").append(login);
+    sb.append("; Password=").append(password);
+    sb.append("; UserType=").append(userType);
     return sb.toString();
   }
 
@@ -50,6 +50,4 @@ public class User implements Serializable {
   public void setUserType(UserType userType) {
     this.userType = userType;
   }
-
-
 }

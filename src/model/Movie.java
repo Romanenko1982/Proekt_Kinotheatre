@@ -13,6 +13,7 @@ public class Movie implements Serializable {
   private String name;
   private Calendar movieDay;
   private List<Ticket> ticketList;
+  private  static final long serialVersionUID = 0;
 
   {
     simpleDateFormat = new SimpleDateFormat("dd.MM.y");

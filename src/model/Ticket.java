@@ -11,6 +11,7 @@ public class Ticket implements Serializable {
   private int numberOfPlace;
   private int cost;
   private boolean isAvailable = true;
+  private  static final long serialVersionUID = 0;
 
   public Ticket(User user, String movie, int numberOfPlace, int cost, boolean isAvailable) {
     id = ++counter;

@@ -19,69 +19,69 @@ import model.UserType;
 public class UserService {
 
   private static HashMap<String, User> usersHashMap;
-  private static User user;
+  private User currentUser;
   private Scanner scanner;
   private File usersDataBase;
-  private String pathToFile = "UsersDataBase_serializationlist.txt";
-
+  private String serializedUserDatabaseFile = "UsersDataBase_serializationlist.txt";
+  private  static final long serialVersionUID = 0;
 
   {
     scanner = new Scanner(System.in);
     usersDataBase = new File("UsersDataBase.txt");
   }
 
-  public void userCommonRegistration() {
+  public void userRegistration() {
     checkLogin();
     checkPassword();
-    user.setUserType(UserType.COMMON_USER);
-    usersHashMap.put(user.getLogin(), user);
-    System.out.println("User created successfully.");
+    currentUser.setUserType(UserType.COMMON_USER);
+    usersHashMap.put(currentUser.getLogin(), currentUser);
+    System.out.println("Пользователь создан успешно.");
   }
 
   private void checkLogin() {
-    System.out.println("Input login:");
+    System.out.println("Введите login:");
     String login = scanner.nextLine();
     if (login.isEmpty()) {
-      System.out.println("Wrong entry repeat again");
+      System.out.println("Неправильно введены данные, повторите снова");
       checkLogin();
     } else if (getUsersHashMap().containsKey(login)) {
-      System.out.println("User " + login + " already exists, use a different login.");
+      System.out.println("Пользователь " + login + " уже существует, выберите другой login.");
       checkLogin();
     } else {
-
-      user.setLogin(login);
+      currentUser.setLogin(login);
     }
   }
 
   private void checkPassword() {
-    System.out.println("Input password:");
+    System.out.println("Введите пароль:");
     String password = scanner.nextLine();
     if (password.isEmpty()) {
-      System.out.println("Wrong entry repeat again");
+      System.out.println("Неправильно введены данные, повторите снова");
       checkPassword();
     } else {
-      user.setPassword(password);
+      currentUser.setPassword(password);
     }
   }
 
-  public void userLogin() {
-    System.out.println("Input login:");
+  public User userLogin() {
+    System.out.println("Введите login:");
     String login = scanner.nextLine();
     if (getUsersHashMap().containsKey(login)) {
-      user = usersHashMap.get(login);
-      System.out.println("Input password:");
+      currentUser = usersHashMap.get(login);
+      System.out.println("Введите пароль:");
       String password = scanner.nextLine();
-      if (password.equals(user.getPassword())) {
-        System.out.println("Login successfully.");
+      if (password.equals(currentUser.getPassword())) {
+        System.out.println("Вход выполнен успешно");
       } else {
-        System.out.println("Wrong password, try again.");
+        System.out.println("Неправильно введены данные, повторите снова");
         userLogin();
       }
     } else {
-      System.out.println("Try again! Wrong data!");
+      System.out.println("Неправильно введены данные, повторите снова");
       userLogin();
     }
     System.out.println();
+    return currentUser;
   }
 
   public void createFileUsers() {
@@ -101,9 +101,9 @@ public class UserService {
       try (BufferedReader br = new BufferedReader(new FileReader(usersDataBase))) {
         while ((var = br.readLine()) != null) {
           String[] array = var.trim().split("; ");
-          user = new User(getFieldValue(array[1]), getFieldValue(array[2]),
+          currentUser = new User(getFieldValue(array[1]), getFieldValue(array[2]),
               UserType.valueOf(getFieldValue(array[3])));
-          usersHashMap.put(user.getLogin(), user);
+          usersHashMap.put(currentUser.getLogin(), currentUser);
         }
       } catch (IOException e) {
         e.printStackTrace();
@@ -136,7 +136,7 @@ public class UserService {
   }
 
   public void createSerializationUsers() {
-    try (FileOutputStream fos = new FileOutputStream(pathToFile,
+    try (FileOutputStream fos = new FileOutputStream(serializedUserDatabaseFile,
         true)) {
       ObjectOutputStream oos = new ObjectOutputStream(fos);
       oos.writeObject(usersHashMap);
@@ -147,7 +147,7 @@ public class UserService {
   }
 
   public HashMap<String, User> getDeserializationUsersMap() {
-    try (FileInputStream fis = new FileInputStream(pathToFile)) {
+    try (FileInputStream fis = new FileInputStream(serializedUserDatabaseFile)) {
       ObjectInputStream ois = new ObjectInputStream(fis);
       try {
         return (HashMap<String, User>) ois.readObject();
@@ -160,11 +160,9 @@ public class UserService {
     return null;
   }
 
-  public static User getUser() {
-    return user;
+  public User getUser() {
+    return currentUser;
   }
-
-
 }
 
 
