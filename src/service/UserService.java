@@ -18,12 +18,12 @@ import model.UserType;
 
 public class UserService {
 
+  private static final long serialVersionUID = 0;
   private static HashMap<String, User> usersHashMap;
   private User currentUser;
   private Scanner scanner;
   private File usersDataBase;
   private String serializedUserDatabaseFile = "UsersDataBase_serializationlist.txt";
-  private  static final long serialVersionUID = 0;
 
   {
     scanner = new Scanner(System.in);
@@ -42,12 +42,14 @@ public class UserService {
     System.out.println("Введите login:");
     String login = scanner.nextLine();
     if (login.isEmpty()) {
-      System.out.println("Неправильно введены данные, повторите снова");
+      System.out.println("Вы ввели пустую строку, повторите снова");
       checkLogin();
     } else if (getUsersHashMap().containsKey(login)) {
-      System.out.println("Пользователь " + login + " уже существует, выберите другой login.");
+      System.out.println(
+          "Пользователь " + login + " уже существует, придумайте другой login и повторите снова");
       checkLogin();
     } else {
+      currentUser = new User(currentUser.getLogin(), currentUser.getPassword(), currentUser.getUserType());
       currentUser.setLogin(login);
     }
   }
@@ -56,7 +58,7 @@ public class UserService {
     System.out.println("Введите пароль:");
     String password = scanner.nextLine();
     if (password.isEmpty()) {
-      System.out.println("Неправильно введены данные, повторите снова");
+      System.out.println("Вы ввели пустую строку, повторите снова");
       checkPassword();
     } else {
       currentUser.setPassword(password);
@@ -129,7 +131,7 @@ public class UserService {
     }
   }
 
-  public void printHashMap() {
+  public void printHashMapUsers() {
     for (Map.Entry<String, User> var : usersHashMap.entrySet()) {
       System.out.println(var.getKey() + ", " + var.getValue());
     }

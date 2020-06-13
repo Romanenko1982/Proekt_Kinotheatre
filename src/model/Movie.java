@@ -55,5 +55,7 @@ public class Movie implements Serializable {
     return ticketList;
   }
 
-
+  public void setTicketList(List<Ticket> ticketList) {
+    this.ticketList = ticketList;
+  }
 }

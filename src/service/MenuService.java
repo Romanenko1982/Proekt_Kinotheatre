@@ -16,14 +16,14 @@ public class MenuService {
     movieService = new MovieService();
     userService = new UserService();
     ticketService = new TicketService();
-
     scanner = new Scanner(System.in);
     menu = new Menu();
   }
 
   public void startWelcomeMenu() {
     userService.createFileUsers();
-    menu.printTheWelcomeMenuView(this);
+    menu.printTheWelcomeMenuView();
+    startMenu();
   }
 
   public void startMenu() {
@@ -55,32 +55,33 @@ public class MenuService {
     UserType type = userService.getUser().getUserType();
     switch (type) {
       case COMMON_USER:
-        menu.printTheCommonMenuView(this);
+        startMenuCommon();
         break;
       case MANAGER:
-        menu.printTheManagerMenuView(this);
+        startMenuManager();
         break;
       case ADMINISTRATOR:
-        menu.printTheAdministratorMenuView(this);
+        startMenuAdministrator();
         break;
     }
   }
 
   public void startMenuCommon() {
+    menu.printTheCommonMenuView();
     if (scanner.hasNextInt()) {
       int var = scanner.nextInt();
       switch (var) {
         case 1:
-          movieService.showMovieList(userService);
+          movieService.showMovieList();
           break;
         case 2:
-          movieService.purchaseTicket(userService);
+          ticketService.purchaseTicket(userService, movieService);
           break;
         case 3:
-          movieService.showPurchaseTickets(userService);
+          ticketService.showPurchaseTickets(userService, movieService);
           break;
         case 4:
-          movieService.returnTicket(userService);
+          ticketService.returnTicket(userService, movieService);
           break;
         case 5:
           exit();
@@ -93,16 +94,56 @@ public class MenuService {
   }
 
   public void startMenuManager() {
+    menu.printTheManagerMenuView();
+    if (scanner.hasNextInt()) {
+      int var = scanner.nextInt();
+      switch (var) {
+//        case 1:
+//          movieService.editMovieList();
+//          break;
+//        case 2:
+//          movieService.editMovieDate();
+//          break;
+//        case 3:
+//          ticketService.returnPurchaseTicket();
+//          break;
+//        case 4:
+//          exit();
+//          break;
+        default:
+          System.out.println("Неверно введенные данные, попробуйте снова\n");
+      }
+      startMenuManager();
+    }
   }
 
   public void startMenuAdministrator() {
-    if(scanner.hasNextInt()) {
+    menu.printTheAdministratorMenuView();
+    if (scanner.hasNextInt()) {
       int var = scanner.nextInt();
       switch (var) {
         case 1:
-          userService.printHashMap();
+          userService.printHashMapUsers();
           break;
+//        case 2:
+//          userService.editUser();
+//          break;
+//        case 3:
+//          userService.removeUser();
+//          break;
+//        case 4:
+//          movieService.addMovie();
+//          break;
+//        case 5:
+//          movieService.removeMovie();
+//          break;
+        case 6:
+          exit();
+          break;
+        default:
+          System.out.println("Неверно введенные данные, попробуйте снова\n");
       }
+      startMenuAdministrator();
     }
   }
 

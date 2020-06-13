@@ -14,29 +14,21 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Scanner;
 import model.Movie;
 import model.Ticket;
-import model.User;
 
 public class MovieService {
 
-  private HashMap<Integer, Movie> moviesHashMap;
+  private static HashMap<Integer, Movie> moviesHashMap;
   private File moviesDataBase;
   private String pathToFile = "MoviesDataBase_serializationlist.txt";
-  private TicketService ts;
-  private List<Ticket> purchasedTicketsList;
-  private Scanner scanner;
-
+  private TicketService ticketService;
 
   {
     moviesDataBase = new File("MoviesDataBase.txt");
-    ts = new TicketService();
-    purchasedTicketsList = new LinkedList<>();
-    scanner = new Scanner(System.in);
+    ticketService = new TicketService();
   }
 
   public void createFileMovies() {
@@ -56,7 +48,8 @@ public class MovieService {
       try (BufferedReader br = new BufferedReader(new FileReader(moviesDataBase))) {
         while ((var = br.readLine()) != null) {
           String[] array = var.trim().split("; ");
-          Movie movie = new Movie(getFieldValue(array[1]), convertToDate(getFieldValue(array[2])), ticketList());
+          Movie movie = new Movie(getFieldValue(array[1]), convertToDate(getFieldValue(array[2])),
+              ticketService.ticketList(this));
           moviesHashMap.put(movie.getId(), movie);
         }
       } catch (IOException e) {
@@ -99,11 +92,12 @@ public class MovieService {
     }
   }
 
-  public void showMovieList(UserService userService) {
+  public void showMovieList() {
     getMoviesHashMap();
     for (Movie movie : moviesHashMap.values()) {
-      System.out.printf("фильм - %s, %s, дата - %s", movie.getId(), movie.getName(), movie.date());
-      showFreeTicketByIdMovie(movie.getId());
+      System.out
+          .printf("id - %s, фильм - %s, дата - %s", movie.getId(), movie.getName(), movie.date());
+      ticketService.showFreeTicketByIdMovie(movie.getId(), this);
       System.out.println();
     }
   }
@@ -130,124 +124,5 @@ public class MovieService {
       e.printStackTrace();
     }
     return null;
-  }
-
-//  //перенес в TicketService
-  public void showFreeTickets(int id) {
-    for (Ticket ticket : moviesHashMap.get(id).getTicketList()) {
-      System.out.println(ticket.getFreeTickets());
-    }
-  }
-
-//перенес в TicketService
-  public List<Ticket> ticketList() {
-    List<Ticket> ticketlist = new LinkedList<>();
-    for (int i = 0; i < 10; i++) {
-    ticketlist.add(new Ticket(i + 1));
-  }
-    return ticketlist;
-}
-
-//  перенес в TicketService
-  private void showFreeTicketByIdMovie(int id) {
-    List<Ticket> list = getMoviesHashMap().get(id).getTicketList();
-    System.out.print(" Свободные места:");
-    for (Ticket ticket : list) {
-      if (ticket.isAvailable()) {
-        System.out.print(" " + ticket.getNumberOfPlace());
-      }
-    }
-  }
-
-//  перенес в TicketService
-  private void putTicketOfUserToPurchaseFile(User user, Ticket ticket) {
-    try (FileOutputStream fos = new FileOutputStream(user.getLogin() + "purchase_ticket.txt")) {
-      ObjectOutputStream oos = new ObjectOutputStream(fos);
-      purchasedTicketsList.add(ticket);
-      oos.writeObject(purchasedTicketsList);
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-  }
-
-//   перенес в TicketService
-  private void putTicketOfUserToPurchaseFile(User user, List<Ticket> list) {
-    try (FileOutputStream fos = new FileOutputStream(user.getLogin() + "purchase_ticket.txt")) {
-      ObjectOutputStream oos = new ObjectOutputStream(fos);
-      purchasedTicketsList.addAll(list);
-      oos.writeObject(purchasedTicketsList);
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-  }
-
-//   перенес в TicketService
-  public void purchaseTicket(UserService userService) {
-    System.out.println("Введите id фильма и номер места.");
-    purchaseTicket(scanner.nextInt(), scanner.nextInt(), userService);
-  }
-
-//  перенес в TicketService
-  public void purchaseTicket(int idMovie, int numberOfPlace, UserService userService) {
-    Ticket ticket = getMoviesHashMap()
-        .get(idMovie)
-        .getTicketList()
-        .get(numberOfPlace - 1);
-    if (ticket.isAvailable()) {
-      ticket.setAvailable(false)
-          .setUser(userService.getUser());
-      putTicketOfUserToPurchaseFile(userService.getUser(), ticket);
-    } else {
-      System.out.println("Данный билет уже куплен.");
-    }
-  }
-
-//  перенес в TicketService
-  private List<Ticket> returnTicketsList(UserService userService) {
-    List<Ticket> list = null;
-    try (FileInputStream fis = new FileInputStream(
-        userService.getUser().getLogin() + "purchase_ticket.txt")) {
-      ObjectInputStream ois = new ObjectInputStream(fis);
-      try {
-        list = (List<Ticket>) ois.readObject();
-      } catch (ClassNotFoundException e) {
-      }
-    } catch (IOException e) {
-      System.out.println("у Вас нет купленных билетов.");
-    }
-    return list;
-  }
-
-//  перенес в TicketService
-  public void showPurchaseTickets(UserService userService) {
-    if (purchasedTicketsList.isEmpty()) {
-      System.out.println("У вас нет купленных билетов");
-    } else {
-      for (Ticket ticket : returnTicketsList(userService)) {
-        System.out.println(ticket);
-      }
-    }
-  }
-
-//  перенес в TicketService
-  public void returnPurchasedTicket(int idTicket, UserService userService) {
-    List<Ticket> ticket1 = returnTicketsList(userService);
-    List<Ticket> ticket2 = new LinkedList<>();
-    for (Ticket ticket : ticket1) {
-      if (ticket.getId() != idTicket) {
-        ticket2.add(ticket);
-      } else {
-        ticket.setAvailable(true);
-      }
-    }
-    purchasedTicketsList = new LinkedList<>();
-    putTicketOfUserToPurchaseFile(userService.getUser(), ticket2);
-    rewriteMovie();
-  }
-
-//  перенес в TicketService
-  public void returnTicket(UserService userService) {
-    System.out.println("Введите id билета, который хотите вернуть.");
-    returnPurchasedTicket(scanner.nextInt(), userService);
   }
 }

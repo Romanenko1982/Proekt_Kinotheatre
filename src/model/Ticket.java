@@ -75,4 +75,8 @@ public class Ticket implements Serializable {
   public int getNumberOfPlace() {
     return numberOfPlace;
   }
+
+  public String getMovie() {
+    return movie;
+  }
 }
