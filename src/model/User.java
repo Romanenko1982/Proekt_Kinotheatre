@@ -4,17 +4,32 @@ import java.io.Serializable;
 
 public class User implements Serializable {
 
+  private static final long serialVersionUID = 0;
+
   private static int counter;
   private int id;
   private String login;
   private String password;
   private UserType userType;
 
-  public User(String login, String password, UserType userType) {
-    id = ++counter;
+
+  public User(int id, String login, String password, UserType userType) {
+    this.id = id;
     this.login = login;
     this.password = password;
     this.userType = userType;
+  }
+
+  public User(String login, String password, UserType userType) {
+    this(++counter, login, password, userType);
+  }
+
+  public static int getCounter() {
+    return counter;
+  }
+
+  public static void setCounter(int id) {
+    counter = id;
   }
 
   @Override
@@ -31,10 +46,6 @@ public class User implements Serializable {
     return login;
   }
 
-  public void setLogin(String login) {
-    this.login = login;
-  }
-
   public String getPassword() {
     return password;
   }
@@ -47,7 +58,7 @@ public class User implements Serializable {
     return userType;
   }
 
-  public void setUserType(UserType userType) {
-    this.userType = userType;
+  public int getId() {
+    return id;
   }
 }

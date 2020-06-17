@@ -1,3 +1,5 @@
+id=9; Login=null; Password=1; UserType=COMMON_USER
+id=8; Login=q; Password=q; UserType=COMMON_USER
 id=1; Login=Romanenko; Password=123; UserType=COMMON_USER
 id=2; Login=Petrov; Password=123; UserType=COMMON_USER
 id=7; Login=Administrator; Password=123; UserType=ADMINISTRATOR

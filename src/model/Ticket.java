@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 public class Ticket implements Serializable {
 
+  private static final long serialVersionUID = 0;
   private static int counter = 0;
   private int id;
   private User user;
@@ -11,7 +12,6 @@ public class Ticket implements Serializable {
   private int numberOfPlace;
   private int cost;
   private boolean isAvailable = true;
-  private  static final long serialVersionUID = 0;
 
   public Ticket(User user, String movie, int numberOfPlace, int cost, boolean isAvailable) {
     id = ++counter;
@@ -25,9 +25,6 @@ public class Ticket implements Serializable {
   public Ticket(int numberOfPlace) {
     id = ++counter;
     this.numberOfPlace = numberOfPlace;
-  }
-
-  public Ticket() {
   }
 
   @Override
@@ -50,15 +47,6 @@ public class Ticket implements Serializable {
     return sb.toString();
   }
 
-  public void setMovie(String movie) {
-    this.movie = movie;
-  }
-
-  public Ticket setAvailable(boolean available) {
-    isAvailable = available;
-    return this;
-  }
-
   public Ticket setUser(User user) {
     this.user = user;
     return this;
@@ -72,11 +60,20 @@ public class Ticket implements Serializable {
     return isAvailable;
   }
 
+  public Ticket setAvailable(boolean available) {
+    isAvailable = available;
+    return this;
+  }
+
   public int getNumberOfPlace() {
     return numberOfPlace;
   }
 
   public String getMovie() {
     return movie;
+  }
+
+  public void setMovie(String movie) {
+    this.movie = movie;
   }
 }

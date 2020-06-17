@@ -22,6 +22,7 @@ public class MenuService {
 
   public void startWelcomeMenu() {
     userService.createFileUsers();
+    movieService.createFileMovies();
     menu.printTheWelcomeMenuView();
     startMenu();
   }
@@ -94,27 +95,33 @@ public class MenuService {
   }
 
   public void startMenuManager() {
-    menu.printTheManagerMenuView();
+    menu.printManagerEditorMenu();
     if (scanner.hasNextInt()) {
       int var = scanner.nextInt();
       switch (var) {
-//        case 1:
-//          movieService.editMovieList();
-//          break;
-//        case 2:
-//          movieService.editMovieDate();
-//          break;
-//        case 3:
-//          ticketService.returnPurchaseTicket();
-//          break;
-//        case 4:
-//          exit();
-//          break;
+        case 1:
+          movieService.showMovieList();
+          break;
+        case 2:
+          movieService.changeTheDateShowMovie();
+          break;
+        case 3:
+          userService.printHashMapUsers();
+          break;
+        case 4:
+          ticketService.purchaseTicketForManager(userService, movieService);
+          break;
+        case 5:
+//          ticketService.removeUserTicket();
+          break;
+        case 6:
+          exit();
+          break;
         default:
           System.out.println("Неверно введенные данные, попробуйте снова\n");
       }
-      startMenuManager();
     }
+    startMenuManager();
   }
 
   public void startMenuAdministrator() {

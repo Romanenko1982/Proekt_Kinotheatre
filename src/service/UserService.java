@@ -11,7 +11,6 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.Scanner;
 import model.User;
 import model.UserType;
@@ -19,7 +18,7 @@ import model.UserType;
 public class UserService {
 
   private static final long serialVersionUID = 0;
-  private static HashMap<String, User> usersHashMap;
+  private HashMap<String, User> usersHashMap;
   private User currentUser;
   private Scanner scanner;
   private File usersDataBase;
@@ -31,14 +30,15 @@ public class UserService {
   }
 
   public void userRegistration() {
-    checkLogin();
-    checkPassword();
-    currentUser.setUserType(UserType.COMMON_USER);
+    String login, password;
+    login = checkLogin();
+    password = checkPassword();
+    currentUser = new User(login, password, UserType.COMMON_USER);
     usersHashMap.put(currentUser.getLogin(), currentUser);
     System.out.println("Пользователь создан успешно.");
   }
 
-  private void checkLogin() {
+  private String checkLogin() {
     System.out.println("Введите login:");
     String login = scanner.nextLine();
     if (login.isEmpty()) {
@@ -49,20 +49,21 @@ public class UserService {
           "Пользователь " + login + " уже существует, придумайте другой login и повторите снова");
       checkLogin();
     } else {
-      currentUser = new User(currentUser.getLogin(), currentUser.getPassword(), currentUser.getUserType());
-      currentUser.setLogin(login);
+      return login;
     }
+    return null;
   }
 
-  private void checkPassword() {
+  private String checkPassword() {
     System.out.println("Введите пароль:");
     String password = scanner.nextLine();
     if (password.isEmpty()) {
       System.out.println("Вы ввели пустую строку, повторите снова");
       checkPassword();
     } else {
-      currentUser.setPassword(password);
+      return password;
     }
+    return null;
   }
 
   public User userLogin() {
@@ -99,13 +100,21 @@ public class UserService {
   public HashMap<String, User> getUsersHashMap() {
     if (usersHashMap == null) {
       usersHashMap = new HashMap<>();
+      User tempUser;
       String var;
       try (BufferedReader br = new BufferedReader(new FileReader(usersDataBase))) {
         while ((var = br.readLine()) != null) {
           String[] array = var.trim().split("; ");
-          currentUser = new User(getFieldValue(array[1]), getFieldValue(array[2]),
-              UserType.valueOf(getFieldValue(array[3])));
-          usersHashMap.put(currentUser.getLogin(), currentUser);
+          tempUser = new User(
+              Integer.parseInt(getFieldValue(array[0])),
+              getFieldValue(array[1]),
+              getFieldValue(array[2]),
+              UserType.valueOf(getFieldValue(array[3]))
+          );
+          if (tempUser.getId() > User.getCounter()) {
+            User.setCounter(tempUser.getId());
+          }
+          usersHashMap.put(tempUser.getLogin(), tempUser);
         }
       } catch (IOException e) {
         e.printStackTrace();
@@ -120,10 +129,12 @@ public class UserService {
   }
 
   public void rewriteUsers() {
-    HashMap<String, User> var = new UserService().getUsersHashMap();
+    HashMap<String, User> var = getUsersHashMap();
     try (BufferedWriter bw = new BufferedWriter(new FileWriter(usersDataBase))) {
       for (User user : var.values()) {
-        bw.write(user.toString() + "\n");
+        bw.write(String
+            .format("id=%s; Login=%s; Password=%s; UserType=%s%n", user.getId(), user.getLogin(),
+                user.getPassword(), user.getUserType()));
       }
       bw.flush();
     } catch (IOException e) {
@@ -132,8 +143,10 @@ public class UserService {
   }
 
   public void printHashMapUsers() {
-    for (Map.Entry<String, User> var : usersHashMap.entrySet()) {
-      System.out.println(var.getKey() + ", " + var.getValue());
+    for (User user : getUsersHashMap().values()) {
+      if (user.getUserType().equals(UserType.COMMON_USER)) {
+        System.out.printf("id=%s, login=%s%n", user.getId(), user.getLogin());
+      }
     }
   }
 
@@ -142,7 +155,6 @@ public class UserService {
         true)) {
       ObjectOutputStream oos = new ObjectOutputStream(fos);
       oos.writeObject(usersHashMap);
-
     } catch (IOException e) {
       e.printStackTrace();
     }

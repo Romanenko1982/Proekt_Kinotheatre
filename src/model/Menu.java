@@ -20,12 +20,14 @@ public class Menu {
     System.out.println("5. Выход");
   }
 
-  public void printTheManagerMenuView() {
+  public void printManagerEditorMenu() {
     System.out.println("----------------------МЕНЮ МЕНЕДЖЕРА------------------------");
-    System.out.println("1. Редактировать список фильмов");
-    System.out.println("2. Редактировать сеансы просмотра фильмов");
-    System.out.println("3. Возвращать купленные пользователем билеты");
-    System.out.println("4. Выход");
+    System.out.println("1. Показать список фильмов");
+    System.out.println("2. Сменить дату просмотра фильма");
+    System.out.println("3. Показать список пользователей");
+    System.out.println("4. Добавить билет пользователю");
+    System.out.println("5. Удалить билет пользователя");
+    System.out.println("6. Выход");
   }
 
   public void printTheAdministratorMenuView() {

@@ -13,23 +13,20 @@ import java.io.ObjectOutputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.Scanner;
 import model.Movie;
-import model.Ticket;
 
 public class MovieService {
 
   private static HashMap<Integer, Movie> moviesHashMap;
-  private File moviesDataBase;
+  private File moviesDataBase = new File("MoviesDataBase.txt");
   private String pathToFile = "MoviesDataBase_serializationlist.txt";
-  private TicketService ticketService;
+  private TicketService ticketService = new TicketService();
+  private Scanner scanner = new Scanner(System.in);
 
-  {
-    moviesDataBase = new File("MoviesDataBase.txt");
-    ticketService = new TicketService();
-  }
 
   public void createFileMovies() {
     if (!moviesDataBase.exists()) {
@@ -48,8 +45,11 @@ public class MovieService {
       try (BufferedReader br = new BufferedReader(new FileReader(moviesDataBase))) {
         while ((var = br.readLine()) != null) {
           String[] array = var.trim().split("; ");
-          Movie movie = new Movie(getFieldValue(array[1]), convertToDate(getFieldValue(array[2])),
-              ticketService.ticketList(this));
+          Movie movie = new Movie(
+              getFieldValue(array[1]),
+              convertToDate(getFieldValue(array[2])),
+              ticketService.createListOfPlaces()
+          );
           moviesHashMap.put(movie.getId(), movie);
         }
       } catch (IOException e) {
@@ -70,15 +70,16 @@ public class MovieService {
   }
 
   public String getFieldValue(String str) {
-    int index = str.indexOf("=");
+    int index = str.indexOf('=');
     return str.substring(index + 1);
   }
 
   public void rewriteMovie() {
-    HashMap<Integer, Movie> var = new MovieService().getMoviesHashMap();
+    HashMap<Integer, Movie> var = getMoviesHashMap();
     try (BufferedWriter bw = new BufferedWriter(new FileWriter(moviesDataBase))) {
       for (Movie movie : var.values()) {
-        bw.write(movie.toString() + "\n");
+        bw.write(String
+            .format("id=%s; name=%s; date=%s%n", movie.getId(), movie.getName(), movie.date()));
       }
       bw.flush();
     } catch (IOException e) {
@@ -103,8 +104,7 @@ public class MovieService {
   }
 
   public void createSerializationMovie() {
-    try (FileOutputStream fos = new FileOutputStream(pathToFile,
-        true)) {
+    try (FileOutputStream fos = new FileOutputStream(pathToFile)) {
       ObjectOutputStream oos = new ObjectOutputStream(fos);
       oos.writeObject(moviesHashMap);
     } catch (IOException e) {
@@ -115,14 +115,35 @@ public class MovieService {
   public HashMap<String, Movie> getDeserializationMoviesMap() {
     try (FileInputStream fis = new FileInputStream(pathToFile)) {
       ObjectInputStream ois = new ObjectInputStream(fis);
-      try {
-        return (HashMap<String, Movie>) ois.readObject();
-      } catch (ClassNotFoundException e) {
-        e.printStackTrace();
-      }
-    } catch (IOException e) {
+      return (HashMap<String, Movie>) ois.readObject();
+    } catch (IOException | ClassNotFoundException e) {
       e.printStackTrace();
     }
     return null;
+  }
+
+  public void changeTheDateShowMovie() {
+    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd.MM.y");
+    System.out.println("Введите id фильма, который хотите отредактировать");
+    if (scanner.hasNextInt()) {
+      int var = scanner.nextInt();
+      if (getMoviesHashMap().containsKey(var)) {
+        Movie movie = getMoviesHashMap().get(var);
+        System.out.println("Введите новую дату просмотра фильма в формате dd.MM.y");
+        String date = new Scanner(System.in).nextLine();
+        try {
+          movie.setMovieDay(toCalendar(simpleDateFormat.parse(date)));
+        } catch (ParseException e) {
+          System.out.println("Вы ввели в неверном формате дату");
+          changeTheDateShowMovie();
+        }
+      }
+    }
+  }
+
+  public Calendar toCalendar(Date date) {
+    Calendar cal = Calendar.getInstance();
+    cal.setTime(date);
+    return cal;
   }
 }

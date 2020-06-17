@@ -7,13 +7,13 @@ import java.util.List;
 
 public class Movie implements Serializable {
 
+  private static final long serialVersionUID = 0;
   private static int counter;
   transient private final SimpleDateFormat simpleDateFormat;
   private int id;
   private String name;
   private Calendar movieDay;
   private List<Ticket> ticketList;
-  private  static final long serialVersionUID = 0;
 
   {
     simpleDateFormat = new SimpleDateFormat("dd.MM.y");
@@ -24,8 +24,8 @@ public class Movie implements Serializable {
     this.name = name;
     this.movieDay = movieDay;
     this.ticketList = ticketList;
-    for (Ticket ticket : ticketList ) {
-      ticket.setMovie(this.name);
+    for (Ticket ticket : ticketList) {
+      ticket.setMovie(id + " " + this.name);
     }
   }
 
@@ -57,5 +57,9 @@ public class Movie implements Serializable {
 
   public void setTicketList(List<Ticket> ticketList) {
     this.ticketList = ticketList;
+  }
+
+  public void setMovieDay(Calendar movieDay) {
+    this.movieDay = movieDay;
   }
 }
